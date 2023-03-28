@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "bellman-ford"
+version = "0.1.0"
+description = ""
+authors = ["morveusz93 <morveusz93@gmail.com>"]
+readme = "README.md"
+packages = [{include = "bellman_ford"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pygame = "^2.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
