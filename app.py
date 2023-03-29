@@ -25,12 +25,15 @@ class App:
             pygame.display.update()
         elif event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
-            # left mouse button
-            if event.button == 1:
-                self.graph.create_node(pos)
-            # any other mouse button
-            else:
-                self.graph.check_collide(pos, self._display_surf)
+            self.on_mouse_click(pos, event.button)
+
+    def on_mouse_click(self, pos: 'tuple[int, int]', button):
+        # left mouse button
+        if button == 1:
+            self.graph.create_node(pos)
+        # any other mouse button
+        else:
+            self.graph.check_collide(pos, self._display_surf)
 
     def on_loop(self):
         self.clock.tick(FPS)
