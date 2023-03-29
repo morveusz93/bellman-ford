@@ -30,10 +30,16 @@ class App:
     def on_mouse_click(self, pos: 'tuple[int, int]', button):
         # left mouse button
         if button == 1:
-            self.graph.create_node(pos)
+            clicked_node = self.graph.check_collide(pos, self._display_surf)
+            if clicked_node:
+                clicked_node.toggle_active()
+            else:
+                self.graph.create_node(pos)
         # any other mouse button
         else:
-            self.graph.check_collide(pos, self._display_surf)
+            clicked_node = self.graph.check_collide(pos, self._display_surf)
+            if clicked_node:
+                self.graph.nodes.remove(clicked_node)
 
     def on_loop(self):
         self.clock.tick(FPS)

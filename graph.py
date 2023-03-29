@@ -7,6 +7,7 @@ from settings import *
 class Graph:
     def __init__(self) -> None:
         self.nodes: 'list[Node]' = []
+        self.nodes_rects: 'list[Rect]' = []
 
     def create_node(self, pos: 'tuple[int, int]'):
         new_node = Node(pos)
@@ -16,13 +17,13 @@ class Graph:
         # if the circles are overlapped, we want to remove the lateset one (appened to list later)
         for node in self.nodes[::-1]:
             if node.collidepoint(*pos, surface):
-                self.nodes.remove(node)
-                del node
-                return
+                return node
 
     def draw(self, surface: Surface):
+        self.nodes_rects = []
         for node in self.nodes:
-            node.draw(surface)
+            rect = node.draw(surface)
+            self.nodes_rects.append(rect)
 
 
 class Node:
