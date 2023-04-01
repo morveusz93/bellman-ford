@@ -10,13 +10,10 @@ class Graph:
         self.nodes: 'list[Node]' = []
         self.edges: 'list[Edge]' = []
         self.surface = surface
-    
-    @property
-    def any_active_node(self) -> bool:
-        return any([n.active for n in self.nodes])
 
     def get_active_node(self) -> Optional['Node']:
-        return [n for n in self.nodes if n.active][0] if self.any_active_node else None
+        if all_nodes := [n for n in self.nodes if n.active]:
+            return all_nodes[0]
 
     def create_node(self, pos: 'tuple[int, int]') -> None:
         new_node = Node(pos)
@@ -26,19 +23,33 @@ class Graph:
         new_edge = Edge(start, end)
         self.edges.append(new_edge)
 
-    def check_collide_node(self, pos: 'tuple[int, int]') -> 'Optional[Node]':
-        # if the circles are overlapped, we want to remove the lateset one (appened to list later)
-        for node in self.nodes[::-1]:
-            if node.collidepoint(*pos, self.surface):
-                return node
-    
-    def check_collide_edge(self, pos: 'tuple[int, int]') -> 'Optional[Edge]':
-        for edge in self.edges[::-1]:
-            if edge.collidepoint(*pos, self.surface):
-                return edge
+    def check_collide(self, pos: 'tuple[int, int]', button: int):
+        if button == 1:
+            if collide_node := self.check_collide_object(self.nodes, pos):
+                self.connect_or_toggle_node(collide_node)
+                return
+            self.create_node(pos)
+        else:
+            if collide_edge := self.check_collide_object(self.edges, pos):
+                self.edges.remove(collide_edge)
+                return
+            if collide_node := self.check_collide_object(self.nodes, pos):
+                self.nodes.remove(collide_node)
+                return
 
-    def connect_nodes(self, end_node) -> None:
-        start_node = self.get_active_node()
+    def check_collide_object(self, objects_list, pos):
+        for obj in objects_list:
+            if obj.collidepoint(*pos, self.surface):
+                return obj
+        return None
+    
+    def connect_or_toggle_node(self, clicked_node: 'Node') -> None:
+        if active_node := self.get_active_node():
+            self.connect_nodes(start_node=active_node, end_node=clicked_node)
+        else:
+            clicked_node.toggle_active()
+
+    def connect_nodes(self, end_node: 'Node', start_node: 'Node') -> None:
         for e in self.edges:
             if e.start_node == start_node or e.start_node == end_node:
                 if e.end_node == start_node or e.end_node == end_node:
@@ -132,9 +143,3 @@ class Edge:
             )
             )
         return (line, polygon)
-
-class NodeConnection:
-    def __init__(self, start, end) -> None:
-        self.start_node = start
-        self.end_node = end
-        self.price = 0
