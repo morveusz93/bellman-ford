@@ -32,8 +32,8 @@ class App:
         if button == 1:
             clicked_node = self.graph.check_collide(pos, self._display_surf)
             if clicked_node:
-                if self.graph.any_active_node:
-                    self.graph.connet_nodes(clicked_node)
+                if self.graph.any_active_node and self.graph.get_active_node() != clicked_node:
+                    self.graph.connect_nodes(clicked_node)
                 else:
                     clicked_node.toggle_active()
             else:

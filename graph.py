@@ -8,7 +8,6 @@ from settings import *
 class Graph:
     def __init__(self) -> None:
         self.nodes: 'list[Node]' = []
-        self.nodes_rects: 'list[Rect]' = []
         self.edges: 'list[Edge]' = []
     
     @property
@@ -32,20 +31,14 @@ class Graph:
             if node.collidepoint(*pos, surface):
                 return node
 
-    def connet_nodes(self, end_node):
+    def connect_nodes(self, end_node):
         start_node = self.get_active_node()
         self.create_edge(start_pos=start_node.pos, end_pos=end_node.pos)
         start_node.toggle_active()
 
     def draw(self, surface: Surface):
-        self.nodes_rects = []
-        for node in self.nodes:
-            rect = node.draw(surface)
-            self.nodes_rects.append(rect)
-
-        self.edges_rects = []
-        for edge in self.edges:
-            edge.draw(surface)
+        for obj in self.nodes + self.edges:
+            obj.draw(surface)
 
 
 class Node:
