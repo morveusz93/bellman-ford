@@ -3,18 +3,19 @@ from pygame.surface import Surface
 from pygame.rect import Rect
 import pygame
 from settings import *
-
+from typing import Optional
 
 class Graph:
-    def __init__(self) -> None:
+    def __init__(self, surface: Surface) -> None:
         self.nodes: 'list[Node]' = []
         self.edges: 'list[Edge]' = []
+        self.surface = surface
     
     @property
-    def any_active_node(self):
+    def any_active_node(self) -> bool:
         return any([n.active for n in self.nodes])
 
-    def get_active_node(self):
+    def get_active_node(self) -> Optional['Node']:
         return [n for n in self.nodes if n.active][0] if self.any_active_node else None
 
     def create_node(self, pos: 'tuple[int, int]'):
@@ -25,20 +26,21 @@ class Graph:
         new_edge = Edge(start_pos, end_pos)
         self.edges.append(new_edge)
 
-    def check_collide(self, pos: 'tuple[int, int]', surface: Surface):
+    def check_collide(self, pos: 'tuple[int, int]'):
         # if the circles are overlapped, we want to remove the lateset one (appened to list later)
         for node in self.nodes[::-1]:
-            if node.collidepoint(*pos, surface):
+            if node.collidepoint(*pos, self.surface):
                 return node
 
     def connect_nodes(self, end_node):
         start_node = self.get_active_node()
-        self.create_edge(start_pos=start_node.pos, end_pos=end_node.pos)
+        if start_node != end_node:
+            self.create_edge(start_pos=start_node.pos, end_pos=end_node.pos)
         start_node.toggle_active()
 
-    def draw(self, surface: Surface):
+    def draw(self):
         for obj in self.nodes + self.edges:
-            obj.draw(surface)
+            obj.draw(self.surface)
 
 
 class Node:

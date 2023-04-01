@@ -15,7 +15,7 @@ class App:
     def on_init(self):
         pygame.init()
         self._display_surf = pygame.display.set_mode(self.size, RESIZABLE, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.graph = Graph()
+        self.graph = Graph(surface=self._display_surf)
         self._running = True
  
     def on_event(self, event):
@@ -30,9 +30,9 @@ class App:
     def on_mouse_click(self, pos: 'tuple[int, int]', button):
         # left mouse button
         if button == 1:
-            clicked_node = self.graph.check_collide(pos, self._display_surf)
+            clicked_node = self.graph.check_collide(pos)
             if clicked_node:
-                if self.graph.any_active_node and self.graph.get_active_node() != clicked_node:
+                if self.graph.any_active_node:
                     self.graph.connect_nodes(clicked_node)
                 else:
                     clicked_node.toggle_active()
@@ -40,7 +40,7 @@ class App:
                 self.graph.create_node(pos)
         # any other mouse button
         else:
-            clicked_node = self.graph.check_collide(pos, self._display_surf)
+            clicked_node = self.graph.check_collide(pos)
             if clicked_node:
                 self.graph.nodes.remove(clicked_node)
 
@@ -49,7 +49,7 @@ class App:
 
     def on_render(self):
         self._display_surf.fill('grey')
-        self.graph.draw(self._display_surf)
+        self.graph.draw()
         pygame.display.flip()
 
     def on_cleanup(self):
