@@ -26,14 +26,23 @@ class Graph:
         new_edge = Edge(start, end)
         self.edges.append(new_edge)
 
-    def check_collide(self, pos: 'tuple[int, int]') -> 'Optional[Node]':
+    def check_collide_node(self, pos: 'tuple[int, int]') -> 'Optional[Node]':
         # if the circles are overlapped, we want to remove the lateset one (appened to list later)
         for node in self.nodes[::-1]:
             if node.collidepoint(*pos, self.surface):
                 return node
+    
+    def check_collide_edge(self, pos: 'tuple[int, int]') -> 'Optional[Edge]':
+        for edge in self.edges[::-1]:
+            if edge.collidepoint(*pos, self.surface):
+                return edge
 
     def connect_nodes(self, end_node) -> None:
         start_node = self.get_active_node()
+        for e in self.edges:
+            if e.start_node == start_node or e.start_node == end_node:
+                if e.end_node == start_node or e.end_node == end_node:
+                    return
         if start_node != end_node:
             self.create_edge(start=start_node, end=end_node)
         start_node.toggle_active()
@@ -91,18 +100,22 @@ class Edge:
             end_pos[1] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.cos(math.radians(self.rotation))
         )
 
-    def draw(self, surface: Surface) -> None:
+    def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
+        rects = self.draw(surface)
+        return rects[0].collidepoint(x, y) or rects[1].collidepoint(x, y)
+ 
+    def draw(self, surface: Surface) -> 'tuple[Rect, Rect]':
         color = EDGE_COLOR
         if self.active:
             color = EDGE_ACTIVE_COLOR
-        pygame.draw.line(
+        line = pygame.draw.line(
             surface, 
             color, 
             self.start_pos,
             self.end_pos,
             width=EDGE_WIDTH
         )
-        pygame.draw.polygon(
+        polygon = pygame.draw.polygon(
             surface, 
             color, 
             ((
@@ -118,6 +131,7 @@ class Edge:
                 self.end_pos[1] + EDGE_ARROW_LENGTH * math.cos(math.radians(self.rotation + EDGE_ARROW_ANGLE)))
             )
             )
+        return (line, polygon)
 
 class NodeConnection:
     def __init__(self, start, end) -> None:
