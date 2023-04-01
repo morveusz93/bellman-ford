@@ -22,8 +22,8 @@ class Graph:
         new_node = Node(pos)
         self.nodes.append(new_node)
 
-    def create_edge(self, start_pos: 'tuple[int, int]', end_pos: 'tuple[int, int]'):
-        new_edge = Edge(start_pos, end_pos)
+    def create_edge(self, start: 'Node', end: 'Node'):
+        new_edge = Edge(start, end)
         self.edges.append(new_edge)
 
     def check_collide(self, pos: 'tuple[int, int]'):
@@ -35,7 +35,7 @@ class Graph:
     def connect_nodes(self, end_node):
         start_node = self.get_active_node()
         if start_node != end_node:
-            self.create_edge(start_pos=start_node.pos, end_pos=end_node.pos)
+            self.create_edge(start=start_node, end=end_node)
         start_node.toggle_active()
 
     def draw(self):
@@ -64,22 +64,28 @@ class Node:
 
 
 class Edge:
-    def __init__(self, start, end) -> None:
+    def __init__(self, start: 'Node', end: 'Node') -> None:
+        self.start_node = start
+        self.end_node = end
         self.active = False
-        self.calculate_rotation(start, end)
-        self.calculate_start_pos(start)
-        self.calculate_end_pos(end)
+        self.calculate_rotation()
+        self.calculate_start_pos()
+        self.calculate_end_pos()
 
-    def calculate_rotation(self, start_pos, end_pos):
+    def calculate_rotation(self):
+        start_pos = self.start_node.pos
+        end_pos = self.end_node.pos
         self.rotation = math.degrees(math.atan2(start_pos[1] - end_pos[1], end_pos[0] - start_pos[0])) + 90
 
-    def calculate_start_pos(self, start_pos):
+    def calculate_start_pos(self):
+        start_pos = self.start_node.pos
         self.start_pos = (
             start_pos[0] + NODE_RADIUS * math.sin(math.radians(self.rotation)), 
             start_pos[1] + NODE_RADIUS * math.cos(math.radians(self.rotation))
         )
 
-    def calculate_end_pos(self, end_pos):
+    def calculate_end_pos(self):
+        end_pos = self.end_node.pos
         self.end_pos = (
             end_pos[0] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.sin(math.radians(self.rotation)),
             end_pos[1] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.cos(math.radians(self.rotation))
@@ -112,3 +118,9 @@ class Edge:
                 self.end_pos[1] + EDGE_ARROW_LENGTH * math.cos(math.radians(self.rotation + EDGE_ARROW_ANGLE)))
             )
             )
+
+class NodeConnection:
+    def __init__(self, start, end) -> None:
+        self.start_node = start
+        self.end_node = end
+        self.price = 0
