@@ -56,6 +56,7 @@ class Graph:
             clicked_node.toggle_active()
 
     def connect_nodes(self, end_node: 'Node', start_node: 'Node') -> None:
+        # TODO: do poprawy
         for e in self.edges:
             if e.start_node == start_node or e.start_node == end_node:
                 if e.end_node == start_node or e.end_node == end_node:
@@ -73,6 +74,9 @@ class Node:
     def __init__(self, pos: 'tuple[int, int]') -> None:
         self.pos = pos
         self.active = False
+
+    def __repr__(self) -> str:
+        return f"<Node in {self.pos}>"
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rect = self.draw(surface)
@@ -97,6 +101,9 @@ class Edge:
         self.calculate_rotation()
         self.calculate_start_pos()
         self.calculate_end_pos()
+
+    def __repr__(self) -> str:
+        return f"<Edge connects {self.start_node} - {self.end_node}>"
 
     def calculate_rotation(self) -> None:
         start_pos = self.start_node.pos
