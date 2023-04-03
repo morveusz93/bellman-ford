@@ -26,7 +26,6 @@ class Graph:
     def check_collide(self, pos: 'tuple[int, int]', button: int):
         if button == 1:
             if collide_edge := self.check_collide_object(self.edges, pos):
-                print(collide_edge.start_node, collide_edge.end_node)
                 return 
             if collide_node := self.check_collide_object(self.nodes[::-1], pos):
                 self.connect_or_toggle_node(collide_node)
