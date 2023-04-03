@@ -25,7 +25,10 @@ class Graph:
 
     def check_collide(self, pos: 'tuple[int, int]', button: int):
         if button == 1:
-            if collide_node := self.check_collide_object(self.nodes, pos):
+            if collide_edge := self.check_collide_object(self.edges, pos):
+                print(collide_edge.start_node, collide_edge.end_node)
+                return 
+            if collide_node := self.check_collide_object(self.nodes[::-1], pos):
                 self.connect_or_toggle_node(collide_node)
                 return
             self.create_node(pos)
@@ -33,9 +36,13 @@ class Graph:
             if collide_edge := self.check_collide_object(self.edges, pos):
                 self.edges.remove(collide_edge)
                 return
-            if collide_node := self.check_collide_object(self.nodes, pos):
+            if collide_node := self.check_collide_object(self.nodes[::-1], pos):
                 self.nodes.remove(collide_node)
+                self.remove_edges_connected_to_node(collide_node)
                 return
+
+    def remove_edges_connected_to_node(self, node):
+        self.edges = list(filter(lambda e: node not in (e.start_node, e.end_node), self.edges))
 
     def check_collide_object(self, objects_list, pos):
         for obj in objects_list:
