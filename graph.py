@@ -23,23 +23,62 @@ class Graph:
         new_edge = Edge(start, end)
         self.edges.append(new_edge)
 
+    # def check_collide_old(self, pos: 'tuple[int, int]', button: int):
+    #     if button == 1:
+    #         if collide_edge := self.check_collide_object(self.edges, pos):
+    #             return 
+    #         if collide_node := self.check_collide_object(self.nodes[::-1], pos):
+    #             self.connect_or_toggle_node(collide_node)
+    #             return
+    #         self.create_node(pos)
+    #     else:
+    #         if collide_edge := self.check_collide_object(self.edges, pos):
+    #             self.edges.remove(collide_edge)
+    #             return
+    #         if collide_node := self.check_collide_object(self.nodes[::-1], pos):
+    #             self.nodes.remove(collide_node)
+    #             self.remove_edges_connected_to_node(collide_node)
+    #             return
+            
+    # def check_collide_better(self, pos: 'tuple[int, int]', button: int):
+    #     collide_edge = self.check_collide_object(self.edges, pos)
+    #     collide_node = self.check_collide_object(self.nodes[::-1], pos)
+    #     if button == 1:
+    #         if collide_edge:
+    #             return 
+    #         if collide_node:
+    #             self.connect_or_toggle_node(collide_node)
+    #             return
+    #         self.create_node(pos)
+    #     else:
+    #         if collide_edge:
+    #             self.edges.remove(collide_edge)
+    #             return
+    #         if collide_node:
+    #             self.nodes.remove(collide_node)
+    #             self.remove_edges_connected_to_node(collide_node)
+    #             return
+            
     def check_collide(self, pos: 'tuple[int, int]', button: int):
-        if button == 1:
-            if collide_edge := self.check_collide_object(self.edges, pos):
-                return 
-            if collide_node := self.check_collide_object(self.nodes[::-1], pos):
-                self.connect_or_toggle_node(collide_node)
-                return
+        collide_edge = self.check_collide_object(self.edges, pos)
+        collide_node = self.check_collide_object(self.nodes[::-1], pos)
+        
+        if not any ((collide_edge, collide_node)):
             self.create_node(pos)
-        else:
-            if collide_edge := self.check_collide_object(self.edges, pos):
+            return
+
+        if collide_edge:
+            if button != 1:
                 self.edges.remove(collide_edge)
                 return
-            if collide_node := self.check_collide_object(self.nodes[::-1], pos):
+
+        if collide_node:
+            if button == 1:
+                self.connect_or_toggle_node(collide_node)
+            else:
                 self.nodes.remove(collide_node)
                 self.remove_edges_connected_to_node(collide_node)
-                return
-
+        
     def remove_edges_connected_to_node(self, node):
         self.edges = list(filter(lambda e: node not in (e.start_node, e.end_node), self.edges))
 
@@ -56,14 +95,18 @@ class Graph:
             clicked_node.toggle_active()
 
     def connect_nodes(self, end_node: 'Node', start_node: 'Node') -> None:
-        # TODO: do poprawy
-        for e in self.edges:
-            if e.start_node == start_node or e.start_node == end_node:
-                if e.end_node == start_node or e.end_node == end_node:
-                    return
+        if self.are_nodes_already_connected(start_node, end_node):
+            return
         if start_node != end_node:
             self.create_edge(start=start_node, end=end_node)
         start_node.toggle_active()
+
+    def are_nodes_already_connected(self, start_node, end_node):
+        for e in self.edges:
+            if e.start_node == start_node or e.start_node == end_node:
+                if e.end_node == start_node or e.end_node == end_node:
+                    return True
+        return False
 
     def draw(self) -> None:
         for obj in self.nodes + self.edges:
