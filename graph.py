@@ -105,9 +105,14 @@ class Edge:
         self.start_node = start
         self.end_node = end
         self.active = False
+        self.weight = 0
+
         self.calculate_rotation()
         self.calculate_start_pos()
         self.calculate_end_pos()
+
+        text_pos = self.calculate_midpoint(self.start_pos, self.end_pos)
+        self.text = DisplayText(center_pos = text_pos, text=f'weight: {self.weight}')
 
     def __repr__(self) -> str:
         return f"<Edge connects {self.start_node} - {self.end_node}>"
@@ -130,6 +135,9 @@ class Edge:
             end_pos[0] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.sin(math.radians(self.rotation)),
             end_pos[1] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.cos(math.radians(self.rotation))
         )
+
+    def calculate_midpoint(self, p1, p2):
+        return (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rects = self.draw(surface)
@@ -162,4 +170,17 @@ class Edge:
                 self.end_pos[1] + EDGE_ARROW_LENGTH * math.cos(math.radians(self.rotation + EDGE_ARROW_ANGLE)))
             )
             )
+        self.text.draw(surface)
         return (line, polygon)
+
+
+class DisplayText:
+    def __init__(self, center_pos, text) -> None:
+        self.font = pygame.font.Font('freesansbold.ttf', 32)
+        self.text = self.font.render(text, True, TEXT_COLOR, TEXT_BG_COLOR)
+        self.center = center_pos
+
+    def draw(self, surface: Surface) -> Rect:
+        textRect = self.text.get_rect()
+        textRect.center = self.center
+        surface.blit(self.text, textRect)

@@ -14,6 +14,7 @@ class App:
  
     def on_init(self):
         pygame.init()
+        pygame.display.set_caption('Graphs algoritms by Morv')
         self._display_surf = pygame.display.set_mode(self.size, RESIZABLE, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.graph = Graph(surface=self._display_surf)
         self._running = True
