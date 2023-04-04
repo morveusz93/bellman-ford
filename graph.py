@@ -12,8 +12,19 @@ class Graph:
         self.surface = surface
 
     def get_active_node(self) -> Optional['Node']:
-        if all_nodes := [n for n in self.nodes if n.active]:
-            return all_nodes[0]
+        if all_active_nodes := [n for n in self.nodes if n.active]:
+            return all_active_nodes[0]
+
+    def get_active_edge(self) -> Optional['Edge']:
+        if all_active_edges := [e for e in self.edges if e.active]:
+            return all_active_edges[0]
+
+    def update_edge_weight(self, event):
+        active_edge = self.get_active_edge()
+        if event.key in (pygame.K_RETURN, pygame.K_ESCAPE):
+            self.toggle_active()
+            return
+        active_edge.change_weight(event)
 
     def create_node(self, pos: 'tuple[int, int]') -> None:
         new_node = Node(pos)
@@ -120,10 +131,13 @@ class Edge:
         self.calculate_end_pos()
 
         text_pos = self.calculate_midpoint(self.start_pos, self.end_pos)
-        self.text = DisplayText(center_pos = text_pos, text=f'weight: {self.weight}')
+        self.text = DisplayText(center_pos = text_pos, text=self.get_weight_text())
 
     def __repr__(self) -> str:
         return f"<Edge connects {self.start_node} - {self.end_node}>"
+    
+    def get_weight_text(self):
+        return f"weight: {self.weight}"
 
     def calculate_rotation(self) -> None:
         start_pos = self.start_node.pos
@@ -137,6 +151,10 @@ class Edge:
             start_pos[1] + NODE_RADIUS * math.cos(math.radians(self.rotation))
         )
 
+    def set_weight(self, w):
+        self.weight = w
+        self.text.text = self.get_weight_text()
+
     def calculate_end_pos(self) -> None:
         end_pos = self.end_node.pos
         self.end_pos = (
@@ -149,12 +167,34 @@ class Edge:
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rects = self.draw(surface)
-        breakpoint()
         return rects[0].collidepoint(x, y) or rects[1].collidepoint(x, y)
     
     def toggle_active(self) -> None:
         self.active = not self.active
- 
+        self.text.toggle_active()
+
+    def change_weight(self, event):
+        if event.key == pygame.K_BACKSPACE:
+            new_weight = int(str(self.weight)[:-1])
+            self.set_weight(new_weight)
+
+        elif event.unicode in ALLOWED_INPUT_KEYS:
+            if event.unicode.isdigit():
+                new_weight = int(str(self.weight) + event.unicode)
+                self.set_weight(new_weight)
+            elif event.unicode == "-":
+                new_weight = self.toggle_positive_negative_weight(self.weight)
+                self.set_weight(new_weight)
+            elif event.unicode == "+":
+                new_weight = abs(self.weight)
+                self.set_weight(new_weight)
+
+    def toggle_positive_negative_weight(self, w):
+        if w > 0:
+            return -abs(w)
+        if w < 0:
+            return abs(w)
+
     def draw(self, surface: Surface) -> 'tuple[Rect, Rect]':
         color = EDGE_COLOR
         if self.active:
@@ -189,10 +229,18 @@ class Edge:
 class DisplayText:
     def __init__(self, center_pos, text) -> None:
         self.font = pygame.font.Font('freesansbold.ttf', 32)
-        self.text = self.font.render(text, True, TEXT_COLOR, TEXT_BG_COLOR)
+        self.text = text
         self.center = center_pos
+        self.active = False
+
+    def toggle_active(self) -> None:
+        self.active = not self.active
 
     def draw(self, surface: Surface) -> Rect:
-        textRect = self.text.get_rect()
+        bg_color = TEXT_BG_COLOR
+        if self.active:
+            bg_color = TEXT_ACTIVE_BG_COLOR
+        text_render = self.font.render(self.text, True, TEXT_COLOR, bg_color)
+        textRect = text_render.get_rect()
         textRect.center = self.center
-        surface.blit(self.text, textRect)
+        surface.blit(text_render, textRect)

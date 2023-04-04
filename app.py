@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import RESIZABLE, VIDEOEXPOSE, VIDEORESIZE
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS
+from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, ALLOWED_INPUT_KEYS
 from graph import Graph
 from pygame.surface import Surface
 
@@ -27,6 +27,8 @@ class App:
         elif event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
             self.graph.check_collide(pos, event.button)
+        if event.type == pygame.KEYDOWN  and any([e.active for e in self.graph.edges]):
+            self.graph.update_edge_weight(event)
 
     def on_loop(self):
         self.clock.tick(FPS)

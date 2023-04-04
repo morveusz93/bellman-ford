@@ -8,8 +8,12 @@ NODE_BORDER_COLOR = 'black'
 EDGE_COLOR = 'black'
 EDGE_ACTIVE_COLOR = 'chartreuse'
 TEXT_BG_COLOR = 'white'
+TEXT_ACTIVE_BG_COLOR = 'chartreuse'
 TEXT_COLOR = 'black'
 EDGE_ARROW_ANGLE = 120
 EDGE_ARROW_LENGTH = 20
 EDGE_WIDTH = 10
 FPS = 30
+
+import pygame
+ALLOWED_INPUT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', "+"]
