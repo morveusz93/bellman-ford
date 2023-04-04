@@ -100,6 +100,7 @@ class Node:
     def __init__(self, pos: 'tuple[int, int]') -> None:
         self.pos = pos
         self.active = False
+        self.text = DisplayText(center_pos=pos, text="ELO")
 
     def __repr__(self) -> str:
         return f"<Node in {self.pos}>"
@@ -116,7 +117,9 @@ class Node:
         if self.active:
             color = NODE_ACTIVE_COLOR
         pygame.draw.circle(surface, NODE_BORDER_COLOR, self.pos, NODE_RADIUS + NODE_BORDER_WIDTH, width=NODE_BORDER_WIDTH)
-        return pygame.draw.circle(surface, color, self.pos, NODE_RADIUS)
+        circle = pygame.draw.circle(surface, color, self.pos, NODE_RADIUS)
+        self.text.draw(surface, bg_color=color)
+        return circle
 
 
 class Edge:
@@ -239,10 +242,9 @@ class DisplayText:
     def toggle_active(self) -> None:
         self.active = not self.active
 
-    def draw(self, surface: Surface) -> Rect:
-        bg_color = TEXT_BG_COLOR
-        if self.active:
-            bg_color = TEXT_ACTIVE_BG_COLOR
+    def draw(self, surface: Surface, bg_color=None) -> Rect:
+        if not bg_color:
+            bg_color = TEXT_BG_COLOR if not self.active else TEXT_ACTIVE_BG_COLOR
         text_render = self.font.render(self.text, True, TEXT_COLOR, bg_color)
         textRect = text_render.get_rect()
         textRect.center = self.center
