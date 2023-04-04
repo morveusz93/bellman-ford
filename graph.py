@@ -22,7 +22,7 @@ class Graph:
     def update_edge_weight(self, event):
         active_edge = self.get_active_edge()
         if event.key in (pygame.K_RETURN, pygame.K_ESCAPE):
-            self.toggle_active()
+            active_edge.toggle_active()
             return
         active_edge.change_weight(event)
 
@@ -174,20 +174,23 @@ class Edge:
         self.text.toggle_active()
 
     def change_weight(self, event):
+        new_weight = None
         if event.key == pygame.K_BACKSPACE:
-            new_weight = int(str(self.weight)[:-1])
-            self.set_weight(new_weight)
+            str_weight = str(self.weight)
+            if len(str_weight) == 1 or (len(str_weight) == 2 and str_weight.startswith("-")):
+                new_weight = 0
+            else:
+                new_weight = int(str(self.weight)[:-1])
 
         elif event.unicode in ALLOWED_INPUT_KEYS:
             if event.unicode.isdigit():
                 new_weight = int(str(self.weight) + event.unicode)
-                self.set_weight(new_weight)
             elif event.unicode == "-":
                 new_weight = self.toggle_positive_negative_weight(self.weight)
-                self.set_weight(new_weight)
             elif event.unicode == "+":
                 new_weight = abs(self.weight)
-                self.set_weight(new_weight)
+        if new_weight is not None:
+            self.set_weight(new_weight)
 
     def toggle_positive_negative_weight(self, w):
         if w > 0:
