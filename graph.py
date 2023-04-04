@@ -29,10 +29,13 @@ class Graph:
         
         if not any ((collide_edge, collide_node)):
             self.create_node(pos)
+            self.turn_off_all_active_elements()
             return
 
         if collide_edge:
-            if button != 1:
+            if button == 1:
+                collide_edge.toggle_active()
+            else:
                 self.edges.remove(collide_edge)
                 return
 
@@ -71,6 +74,11 @@ class Graph:
                 if e.end_node == start_node or e.end_node == end_node:
                     return True
         return False
+    
+    def turn_off_all_active_elements(self):
+        for e in self.nodes + self.edges:
+            if e.active:
+                e.toggle_active()
 
     def draw(self) -> None:
         for obj in self.nodes + self.edges:
@@ -141,7 +149,11 @@ class Edge:
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rects = self.draw(surface)
+        breakpoint()
         return rects[0].collidepoint(x, y) or rects[1].collidepoint(x, y)
+    
+    def toggle_active(self) -> None:
+        self.active = not self.active
  
     def draw(self, surface: Surface) -> 'tuple[Rect, Rect]':
         color = EDGE_COLOR
