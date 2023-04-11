@@ -4,13 +4,18 @@ from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, ALLOWED_INPUT_KEYS
 from graph import Graph
 from pygame.surface import Surface
 
+
 class App:
+    DRAW_MODE = 1
+    CALCULATE_MODE = 2
+
     def __init__(self):
         self.size = self.weight, self.height = WINDOW_WIDTH, WINDOW_HEIGHT
         self.clock = pygame.time.Clock()
         self._running = True
         self._display_surf: Surface = None
         self.graph: Graph = None
+        self.mode = self.DRAW_MODE
  
     def on_init(self):
         pygame.init()
@@ -24,11 +29,14 @@ class App:
             self._running = False
         elif event.type in (VIDEORESIZE, VIDEOEXPOSE): 
             pygame.display.update()
-        elif event.type == pygame.MOUSEBUTTONUP:
+        elif self.mode == self.DRAW_MODE and event.type == pygame.MOUSEBUTTONUP:
             pos = pygame.mouse.get_pos()
             self.graph.check_collide(pos, event.button)
-        if event.type == pygame.KEYDOWN  and any([e.active for e in self.graph.edges]):
-            self.graph.update_edge_weight(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                self.mode = self.CALCULATE_MODE
+            elif self.mode == self.DRAW_MODE and any([e.active for e in self.graph.edges]):
+                self.graph.update_edge_weight(event)
 
     def on_loop(self):
         self.clock.tick(FPS)

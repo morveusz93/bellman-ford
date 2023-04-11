@@ -100,7 +100,7 @@ class Node:
     def __init__(self, pos: 'tuple[int, int]') -> None:
         self.pos = pos
         self.active = False
-        self.text = DisplayText(center_pos=pos, text="ELO")
+        self.text = DisplayText(center_pos=pos, text="")
 
     def __repr__(self) -> str:
         return f"<Node in {self.pos}>"
