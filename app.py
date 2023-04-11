@@ -1,8 +1,9 @@
 import pygame
 from pygame.locals import RESIZABLE, VIDEOEXPOSE, VIDEORESIZE
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, ALLOWED_INPUT_KEYS
+from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS
 from graph import Graph
 from pygame.surface import Surface
+from bellman_ford import BellmanFord
 
 
 class App:
@@ -39,7 +40,10 @@ class App:
                     print("nie wybrano start vertex")
                     return
                 self.mode = self.CALCULATE_MODE
-                print(start_vertex)
+                self.graph.reset_distances()
+                alg = BellmanFord(self.graph)
+                alg.calculate(start_vertex)
+                self.mode = self.DRAW_MODE
             elif self.mode == self.DRAW_MODE and any([e.active for e in self.graph.edges]):
                 self.graph.update_edge_weight(event)
 

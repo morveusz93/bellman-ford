@@ -68,6 +68,9 @@ class Graph:
                 return obj
         return None
     
+    def get_vertex_edges(self, vertex):
+        return [e for e in self.edges if e.start_vertex == vertex]
+    
     def connect_or_toggle_vertex(self, clicked_vertex: 'Vertex') -> None:
         if active_vertex := self.get_active_vertex():
             self.connect_vertices(start_vertex=active_vertex, end_vertex=clicked_vertex)
@@ -93,6 +96,10 @@ class Graph:
             if e.active:
                 e.toggle_active()
 
+    def reset_distances(self):
+        for v in self.vertices:
+            v.distance = float('inf')
+
     def draw(self) -> None:
         for obj in self.vertices + self.edges:
             obj.draw(self.surface)
@@ -102,10 +109,14 @@ class Vertex:
     def __init__(self, pos: 'tuple[int, int]') -> None:
         self.pos = pos
         self.active = False
-        self.text = DisplayText(center_pos=pos, text="")
+        self.distance = float('inf')
+        self.update_text()
 
     def __repr__(self) -> str:
         return f"<Vertex in {self.pos}>"
+    
+    def update_text(self) -> None:
+        self.text = DisplayText(center_pos=self.pos, text=str(self.distance))
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rect = self.draw(surface)
@@ -113,6 +124,10 @@ class Vertex:
  
     def toggle_active(self) -> None:
         self.active = not self.active
+
+    def set_distance(self, new_distance) -> None:
+        self.distance = int(new_distance)
+        self.update_text()
  
     def draw(self, surface: Surface) -> Rect:
         color = VERTEX_COLOR
