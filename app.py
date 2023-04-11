@@ -4,6 +4,7 @@ from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, BG_COLOR
 from graph import Graph
 from pygame.surface import Surface
 from bellman_ford import BellmanFord
+from instruction import Instruction
 
 
 class App:
@@ -17,11 +18,13 @@ class App:
         self._display_surf: Surface = None
         self.graph: Graph = None
         self.mode = self.DRAW_MODE
+        self._show_instruction = True
  
     def on_init(self):
         pygame.init()
         pygame.display.set_caption('Bellman-Ford by Morv')
         self._display_surf = pygame.display.set_mode(self.size, RESIZABLE, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self.instruction = Instruction()
         self.graph = Graph(surface=self._display_surf)
         self._running = True
  
@@ -36,6 +39,8 @@ class App:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
                 self.start_bellman_ford()
+            elif event.key == pygame.K_F1:
+                self._show_instruction = not self._show_instruction
             elif self.mode == self.DRAW_MODE and any([e.active for e in self.graph.edges]):
                 self.graph.update_edge_weight(event)
 
@@ -44,6 +49,8 @@ class App:
 
     def on_render(self):
         self._display_surf.fill(BG_COLOR)
+        if self._show_instruction:
+            self.instruction.draw(self._display_surf)
         self.graph.draw()
         pygame.display.flip()
 

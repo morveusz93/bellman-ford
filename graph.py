@@ -264,6 +264,6 @@ class DisplayText:
         if not bg_color:
             bg_color = TEXT_BG_COLOR if not self.active else TEXT_ACTIVE_BG_COLOR
         text_render = self.font.render(self.text, True, TEXT_COLOR, bg_color)
-        textRect = text_render.get_rect()
-        textRect.center = self.center
-        surface.blit(text_render, textRect)
+        text_rect = text_render.get_rect()
+        text_rect.center = self.center
+        surface.blit(text_render, text_rect)
