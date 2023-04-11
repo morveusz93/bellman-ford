@@ -1,5 +1,6 @@
 WINDOW_WIDTH = 1800
 WINDOW_HEIGHT = 1200
+BG_COLOR = 'grey'
 VERTEX_COLOR = 'cyan1'
 VERTEX_ACTIVE_COLOR = 'chartreuse'
 VERTEX_RADIUS = 50
@@ -14,6 +15,4 @@ EDGE_ARROW_ANGLE = 120
 EDGE_ARROW_LENGTH = 20
 EDGE_WIDTH = 10
 FPS = 30
-
-import pygame
 ALLOWED_INPUT_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', "+"]

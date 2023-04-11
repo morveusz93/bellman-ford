@@ -1,6 +1,6 @@
 import pygame
 from pygame.locals import RESIZABLE, VIDEOEXPOSE, VIDEORESIZE
-from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS
+from settings import WINDOW_WIDTH, WINDOW_HEIGHT, FPS, BG_COLOR
 from graph import Graph
 from pygame.surface import Surface
 from bellman_ford import BellmanFord
@@ -20,7 +20,7 @@ class App:
  
     def on_init(self):
         pygame.init()
-        pygame.display.set_caption('Graphs algoritms by Morv')
+        pygame.display.set_caption('Bellman-Ford by Morv')
         self._display_surf = pygame.display.set_mode(self.size, RESIZABLE, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.graph = Graph(surface=self._display_surf)
         self._running = True
@@ -35,15 +35,7 @@ class App:
             self.graph.check_collide(pos, event.button)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
-                start_vertex = self.graph.get_active_vertex()
-                if not start_vertex:
-                    print("nie wybrano start vertex")
-                    return
-                self.mode = self.CALCULATE_MODE
-                self.graph.reset_distances()
-                alg = BellmanFord(self.graph)
-                alg.calculate(start_vertex)
-                self.mode = self.DRAW_MODE
+                self.start_bellman_ford()
             elif self.mode == self.DRAW_MODE and any([e.active for e in self.graph.edges]):
                 self.graph.update_edge_weight(event)
 
@@ -51,7 +43,7 @@ class App:
         self.clock.tick(FPS)
 
     def on_render(self):
-        self._display_surf.fill('grey')
+        self._display_surf.fill(BG_COLOR)
         self.graph.draw()
         pygame.display.flip()
 
@@ -68,3 +60,13 @@ class App:
             self.on_loop()
             self.on_render()
         self.on_cleanup()
+
+    def start_bellman_ford(self):
+        self.mode = self.CALCULATE_MODE
+        start_vertex = self.graph.get_active_vertex()
+        if not start_vertex:
+            return
+        self.graph.reset_distances()
+        alg = BellmanFord(self.graph)
+        alg.calculate(start_vertex)
+        self.mode = self.DRAW_MODE

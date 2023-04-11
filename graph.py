@@ -47,7 +47,8 @@ class Graph:
             if button == 1:
                 if active_edge := self.get_active_edge():
                     active_edge.toggle_active()
-                collide_edge.toggle_active()
+                if active_edge != collide_edge:
+                    collide_edge.toggle_active()
             else:
                 self.edges.remove(collide_edge)
                 return
