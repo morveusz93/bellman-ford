@@ -7,13 +7,13 @@ from typing import Optional
 
 class Graph:
     def __init__(self, surface: Surface) -> None:
-        self.nodes: 'list[Node]' = []
+        self.vertices: 'list[Vertex]' = []
         self.edges: 'list[Edge]' = []
         self.surface = surface
 
-    def get_active_node(self) -> Optional['Node']:
-        if all_active_nodes := [n for n in self.nodes if n.active]:
-            return all_active_nodes[0]
+    def get_active_vertex(self) -> Optional['Vertex']:
+        if all_active_vertices := [n for n in self.vertices if n.active]:
+            return all_active_vertices[0]
 
     def get_active_edge(self) -> Optional['Edge']:
         if all_active_edges := [e for e in self.edges if e.active]:
@@ -26,39 +26,41 @@ class Graph:
             return
         active_edge.change_weight(event)
 
-    def create_node(self, pos: 'tuple[int, int]') -> None:
-        new_node = Node(pos)
-        self.nodes.append(new_node)
+    def create_vertex(self, pos: 'tuple[int, int]') -> None:
+        new_vertex = Vertex(pos)
+        self.vertices.append(new_vertex)
 
-    def create_edge(self, start: 'Node', end: 'Node') -> None:
+    def create_edge(self, start: 'Vertex', end: 'Vertex') -> None:
         new_edge = Edge(start, end)
         self.edges.append(new_edge)
             
     def check_collide(self, pos: 'tuple[int, int]', button: int):
         collide_edge = self.check_collide_object(self.edges, pos)
-        collide_node = self.check_collide_object(self.nodes[::-1], pos)
+        collide_vertex = self.check_collide_object(self.vertices[::-1], pos)
         
-        if not any ((collide_edge, collide_node)):
-            self.create_node(pos)
+        if not any ((collide_edge, collide_vertex)):
+            self.create_vertex(pos)
             self.turn_off_all_active_elements()
             return
 
         if collide_edge:
             if button == 1:
+                if active_edge := self.get_active_edge():
+                    active_edge.toggle_active()
                 collide_edge.toggle_active()
             else:
                 self.edges.remove(collide_edge)
                 return
 
-        if collide_node:
+        if collide_vertex:
             if button == 1:
-                self.connect_or_toggle_node(collide_node)
+                self.connect_or_toggle_vertex(collide_vertex)
             else:
-                self.nodes.remove(collide_node)
-                self.remove_edges_connected_to_node(collide_node)
+                self.vertices.remove(collide_vertex)
+                self.remove_edges_connected_to_vertex(collide_vertex)
         
-    def remove_edges_connected_to_node(self, node):
-        self.edges = list(filter(lambda e: node not in (e.start_node, e.end_node), self.edges))
+    def remove_edges_connected_to_vertex(self, vertex):
+        self.edges = list(filter(lambda e: vertex not in (e.start_vertex, e.end_vertex), self.edges))
 
     def check_collide_object(self, objects_list, pos):
         for obj in objects_list:
@@ -66,44 +68,44 @@ class Graph:
                 return obj
         return None
     
-    def connect_or_toggle_node(self, clicked_node: 'Node') -> None:
-        if active_node := self.get_active_node():
-            self.connect_nodes(start_node=active_node, end_node=clicked_node)
+    def connect_or_toggle_vertex(self, clicked_vertex: 'Vertex') -> None:
+        if active_vertex := self.get_active_vertex():
+            self.connect_vertices(start_vertex=active_vertex, end_vertex=clicked_vertex)
         else:
-            clicked_node.toggle_active()
+            clicked_vertex.toggle_active()
 
-    def connect_nodes(self, end_node: 'Node', start_node: 'Node') -> None:
-        if self.are_nodes_already_connected(start_node, end_node):
+    def connect_vertices(self, end_vertex: 'Vertex', start_vertex: 'Vertex') -> None:
+        if self.are_vertices_already_connected(start_vertex, end_vertex):
             return
-        if start_node != end_node:
-            self.create_edge(start=start_node, end=end_node)
-        start_node.toggle_active()
+        if start_vertex != end_vertex:
+            self.create_edge(start=start_vertex, end=end_vertex)
+        start_vertex.toggle_active()
 
-    def are_nodes_already_connected(self, start_node, end_node):
+    def are_vertices_already_connected(self, start_vertex, end_vertex):
         for e in self.edges:
-            if e.start_node == start_node or e.start_node == end_node:
-                if e.end_node == start_node or e.end_node == end_node:
+            if e.start_vertex == start_vertex or e.start_vertex == end_vertex:
+                if e.end_vertex == start_vertex or e.end_vertex == end_vertex:
                     return True
         return False
     
     def turn_off_all_active_elements(self):
-        for e in self.nodes + self.edges:
+        for e in self.vertices + self.edges:
             if e.active:
                 e.toggle_active()
 
     def draw(self) -> None:
-        for obj in self.nodes + self.edges:
+        for obj in self.vertices + self.edges:
             obj.draw(self.surface)
 
 
-class Node:
+class Vertex:
     def __init__(self, pos: 'tuple[int, int]') -> None:
         self.pos = pos
         self.active = False
         self.text = DisplayText(center_pos=pos, text="")
 
     def __repr__(self) -> str:
-        return f"<Node in {self.pos}>"
+        return f"<Vertex in {self.pos}>"
 
     def collidepoint(self, x: int, y: int,  surface: Surface) -> bool:
         rect = self.draw(surface)
@@ -113,19 +115,19 @@ class Node:
         self.active = not self.active
  
     def draw(self, surface: Surface) -> Rect:
-        color = NODE_COLOR
+        color = VERTEX_COLOR
         if self.active:
-            color = NODE_ACTIVE_COLOR
-        pygame.draw.circle(surface, NODE_BORDER_COLOR, self.pos, NODE_RADIUS + NODE_BORDER_WIDTH, width=NODE_BORDER_WIDTH)
-        circle = pygame.draw.circle(surface, color, self.pos, NODE_RADIUS)
+            color = VERTEX_ACTIVE_COLOR
+        pygame.draw.circle(surface, VERTEX_BORDER_COLOR, self.pos, VERTEX_RADIUS + VERTEX_BORDER_WIDTH, width=VERTEX_BORDER_WIDTH)
+        circle = pygame.draw.circle(surface, color, self.pos, VERTEX_RADIUS)
         self.text.draw(surface, bg_color=color)
         return circle
 
 
 class Edge:
-    def __init__(self, start: 'Node', end: 'Node') -> None:
-        self.start_node = start
-        self.end_node = end
+    def __init__(self, start: 'Vertex', end: 'Vertex') -> None:
+        self.start_vertex = start
+        self.end_vertex = end
         self.active = False
         self.weight = 0
 
@@ -137,21 +139,21 @@ class Edge:
         self.text = DisplayText(center_pos = text_pos, text=self.get_weight_text())
 
     def __repr__(self) -> str:
-        return f"<Edge connects {self.start_node} - {self.end_node}>"
+        return f"<Edge connects {self.start_vertex} - {self.end_vertex}>"
     
     def get_weight_text(self):
         return f"weight: {self.weight}"
 
     def calculate_rotation(self) -> None:
-        start_pos = self.start_node.pos
-        end_pos = self.end_node.pos
+        start_pos = self.start_vertex.pos
+        end_pos = self.end_vertex.pos
         self.rotation = math.degrees(math.atan2(start_pos[1] - end_pos[1], end_pos[0] - start_pos[0])) + 90
 
     def calculate_start_pos(self) -> None:
-        start_pos = self.start_node.pos
+        start_pos = self.start_vertex.pos
         self.start_pos = (
-            start_pos[0] + NODE_RADIUS * math.sin(math.radians(self.rotation)), 
-            start_pos[1] + NODE_RADIUS * math.cos(math.radians(self.rotation))
+            start_pos[0] + VERTEX_RADIUS * math.sin(math.radians(self.rotation)), 
+            start_pos[1] + VERTEX_RADIUS * math.cos(math.radians(self.rotation))
         )
 
     def set_weight(self, w):
@@ -159,10 +161,10 @@ class Edge:
         self.text.text = self.get_weight_text()
 
     def calculate_end_pos(self) -> None:
-        end_pos = self.end_node.pos
+        end_pos = self.end_vertex.pos
         self.end_pos = (
-            end_pos[0] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.sin(math.radians(self.rotation)),
-            end_pos[1] - (NODE_RADIUS + EDGE_ARROW_LENGTH) * math.cos(math.radians(self.rotation))
+            end_pos[0] - (VERTEX_RADIUS + EDGE_ARROW_LENGTH) * math.sin(math.radians(self.rotation)),
+            end_pos[1] - (VERTEX_RADIUS + EDGE_ARROW_LENGTH) * math.cos(math.radians(self.rotation))
         )
 
     def calculate_midpoint(self, p1, p2):

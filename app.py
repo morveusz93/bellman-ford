@@ -34,7 +34,12 @@ class App:
             self.graph.check_collide(pos, event.button)
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
+                start_vertex = self.graph.get_active_vertex()
+                if not start_vertex:
+                    print("nie wybrano start vertex")
+                    return
                 self.mode = self.CALCULATE_MODE
+                print(start_vertex)
             elif self.mode == self.DRAW_MODE and any([e.active for e in self.graph.edges]):
                 self.graph.update_edge_weight(event)
 

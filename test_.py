@@ -1,44 +1,44 @@
-from graph import Graph, Node
+from graph import Graph, Vertex
 import random
 
-def test_create_graph_with_empty_node_list():
+def test_create_graph_with_empty_vertex_list():
     graph = Graph()
-    assert graph.nodes == []
+    assert graph.vertices == []
 
-def test_created_node_has_correct_position():
+def test_created_vertex_has_correct_position():
     x = random.randint(0, 1000)
     y = random.randint(0, 1000)
     pos = (x,y)
 
-    node = Node(pos)
+    vertex = Vertex(pos)
 
-    assert node.pos == pos
+    assert vertex.pos == pos
 
-def test_created_node_by_graph_object_has_coorect_position():
+def test_created_vertex_by_graph_object_has_coorect_position():
     x = random.randint(0, 1000)
     y = random.randint(0, 1000)
     pos = (x,y)
 
     graph = Graph()
-    graph.create_node(pos)
+    graph.create_vertex(pos)
 
-    assert graph.nodes[0].pos == pos
+    assert graph.vertices[0].pos == pos
 
-def test_node_init_active_is_false():
-    node = _create_node()
+def test_vertex_init_active_is_false():
+    vertex = _create_vertex()
     
-    assert node.active is False
+    assert vertex.active is False
 
-def test_node_toggle_active():
-    node = _create_node()
-    node.toggle_active()
-    assert node.active is True
+def test_vertex_toggle_active():
+    vertex = _create_vertex()
+    vertex.toggle_active()
+    assert vertex.active is True
 
 
-def _create_node():
+def _create_vertex():
     x = random.randint(0, 1000)
     y = random.randint(0, 1000)
     pos = (x,y)
 
-    node = Node(pos)
-    return node
+    vertex = Vertex(pos)
+    return vertex
